@@ -18,4 +18,4 @@ const onConnection = (socket) => {
 };
 
 io.on('connection', onConnection);
-io.httpServer.listen(3000);
+io.httpServer.listen(process.env.PORT || 3000);
