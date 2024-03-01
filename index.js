@@ -1,6 +1,6 @@
 const http = require('http');
 const { Server } = require('socket.io');
-
+const port = process.env.PORT || 3000;
 const httpServer = http.createServer();
 const io = new Server(httpServer, {
   cors: {
@@ -18,4 +18,4 @@ const onConnection = (socket) => {
 };
 
 io.on('connection', onConnection);
-io.httpServer.listen(process.env.PORT || 8080);
+httpServer.listen(port);
