@@ -11,6 +11,7 @@ const io = new Server(httpServer, {
 const adminNamespace = io.of('/admin');
 
 const registerConnectionHandler = require('./handlers/connectionHandler');
+const store = require('./store');
 
 const onConnection = (socket) => {
   console.log(`Client with socketId: ${socket.id} connected.`);
@@ -18,4 +19,7 @@ const onConnection = (socket) => {
 };
 
 io.on('connection', onConnection);
+adminNamespace.on('connection', (socket) => {
+  socket.emit('admin:connections', store.getClients());
+});
 httpServer.listen(port);
