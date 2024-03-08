@@ -5,9 +5,9 @@ class Store {
   setPayload(sockeId, payload) {
     this.clients.set(sockeId, payload);
   }
-  getClientInfo(sessionId) {
-    if (this.clients.has(sessionId)) {
-      return this.clients.get(sessionId);
+  getClientInfo(socketId) {
+    if (this.clients.has(socketId)) {
+      return this.clients.get(socketId);
     }
     return null;
   }
@@ -17,6 +17,11 @@ class Store {
       clientsArray.push({ ...info, socketId });
     }
     return clientsArray;
+  }
+  removeClient(socketId) {
+    if (this.clients.has(socketId)) {
+      this.clients.delete(socketId);
+    }
   }
 }
 module.exports = new Store();

@@ -1,10 +1,15 @@
 const store = require('../store');
 module.exports = (io, socket) => {
   socket.on('disconnect', (reason) => {
-    console.log(`Client with socketId: ${socket.id} disconnected`);
+    store.removeClient(socket.id);
+    io.of('/admin').emit('admin:removeConnection', socket.id);
   });
   socket.on('connection:send-info', (payload) => {
+    payload.clientIp = socket.handshake.address;
     store.setPayload(socket.id, payload);
-    console.log(store.getClients());
+    io.of('/admin').emit('admin:newConnection', {
+      socketId: socket.id,
+      ...payload,
+    });
   });
 };
