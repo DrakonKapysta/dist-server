@@ -11,6 +11,7 @@ class Store {
     }
     return null;
   }
+  getNextComputer() {}
   getClients() {
     const clientsArray = [];
     for (const [socketId, info] of this.clients) {
