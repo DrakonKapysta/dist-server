@@ -1,9 +1,16 @@
-const obj = {
-  name: 'tomas',
-  city: { cityName: 'Game', throne: { throneName: 'Garbi' } },
-};
+function executeAsync(index) {
+  return Promise.resolve().then(() => {
+    console.log(`Выполняется обработчик ${index}`);
+    return Promise.resolve().then(() => {
+      console.log(`Выполняется обработчик under ${index}`);
+    });
+  });
+}
 
-const newObj = { ...obj };
+for (let i = 0; i < 5; i++) {
+  executeAsync(i);
+}
 
-newObj.city.cityName = 'newName';
-console.log(obj);
+for (let i = 0; i < 100; i++) {
+  console.log(i);
+}

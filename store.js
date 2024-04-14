@@ -2,8 +2,8 @@ class Store {
   constructor() {
     this.clients = new Map();
   }
-  setPayload(sockeId, payload) {
-    this.clients.set(sockeId, payload);
+  setPayload(socketId, payload) {
+    this.clients.set(socketId, payload);
   }
   getClientInfo(socketId) {
     if (this.clients.has(socketId)) {
@@ -15,8 +15,9 @@ class Store {
   getClients() {
     const clientsArray = [];
     for (const [socketId, info] of this.clients) {
-      clientsArray.push({ ...info, socketId });
+      clientsArray.push({ ...info });
     }
+    //console.log(clientsArray[0]);
     return clientsArray;
   }
   removeClient(socketId) {
