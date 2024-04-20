@@ -3,7 +3,7 @@ const loadBalancer = require('../LoadBalancerWrr');
 const store = require('../store');
 const weights = [5, 3, 2];
 
-module.exports = (io, socket) => {
+module.exports = (io, socket, db) => {
   socket.on('disconnect', (reason) => {
     store.removeClient(socket.id);
     io.of('/admin').emit('admin:removeConnection', socket.id);
@@ -31,6 +31,11 @@ module.exports = (io, socket) => {
     //console.log(payload);
     loadBalancer.addWorker(store.getClientInfo(socket.id));
     //console.log('Client info : ' + store.getClientInfo(socket.id).weight);
+    store.addLog(
+      'New connection - Worker with id: ' +
+        socket.id +
+        ' connected to the server.',
+    );
     io.of('/admin').emit('admin:newConnection', {
       socketId: socket.id,
       ...payload,

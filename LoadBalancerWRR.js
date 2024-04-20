@@ -1,9 +1,10 @@
 class LoadBlancerWRR {
-  workers = []; //under question
+  workers = [];
   adminNamespace = undefined;
   sockets = new Map();
   requestList = [];
   io = undefined;
+  sendingRequestInterval = undefined;
 
   setAdminNamespace(namespace) {
     this.adminNamespace = namespace;
@@ -20,9 +21,34 @@ class LoadBlancerWRR {
   setSocektIoInstance(io) {
     this.io = io;
   }
+  startSendingRequestInfo() {
+    this.sendingRequestInterval = setInterval(() => {
+      for (const worker of this.workers) {
+        this.adminNamespace.emit('admin:workerRequest', {
+          workerId: worker.socketId,
+          requests: worker.requests,
+        });
+      }
+    }, 1000);
+  }
+  startLoggToAdmin() {}
+  stopSending() {
+    clearInterval(this.sendingRequestInterval);
+  }
+  async sendReqToAdmin(index) {
+    this.sockets
+      .get(this.workers[index].socketId)
+      .emit('request:task', task, (responce) => {
+        if (responce.status == 'ok') {
+          this.workers[index].requests.totalSuccessfulRequests += 1;
+        }
+        if (responce.status == 'err') {
+          this.workers[index].requests.totalErrorRequests += 1;
+        }
+      });
+  }
 
   async WRR() {
-    const intervalDesc = setInterval(() => {}, 2000);
     console.log('Wrr started');
     //Handle errors ========================= start
     if (!this.workers.length) {
@@ -56,39 +82,14 @@ class LoadBlancerWRR {
 
       this.workers[workerIndex].taskQueue.push(task);
       // <--------Sending task to worker---------->
-      const sendReqToAdmin = async (index) => {
-        this.sockets
-          .get(this.workers[index].socketId)
-          .emit('request:task', task, (responce) => {
-            if (responce.status == 'ok') {
-              this.workers[index].requests.totalSuccessfulRequests += 1;
-              // переробити це гавно, +1 до реквеста кал тупо, дуже багато запитів які ніяк не обмежити в часі.
-              // зробити таймер на секунду і кидати кожну 1-2 секунди this.workers[index].totalSuccessfulRequests і
-              // переробити це на структуру в якій буде все зразу.
-              // типу зробити 1 спільний admin:workerRequest з стуктурою payload: {totalSuccessfulRequests, totalErrorRequest}
-              // this.adminNamespace.emit('admin:incrementSuccessfulRequest', {
-              //   workerId: this.workers[index].socketId,
-              // });
-            }
-            if (responce.status == 'err') {
-              this.workers[index].requests.totalErrorRequests += 1;
-              // this.adminNamespace.emit('admin:incrementErrorRequest', {
-              //   workerId: this.workers[index].socketId,
-              // });
-            }
-          });
-      };
-      sendReqToAdmin(workerIndex);
 
-      this.workers[workerIndex].requests.totalRequestCount += 1;
-      // this.adminNamespace.emit('admin:incrementRequest', {
-      //   workerId: this.workers[workerIndex].socketId,
-      // });
+      this.sendReqToAdmin(workerIndex);
+
       // <--------Sending task to worker---------->
+      this.workers[workerIndex].requests.totalRequestCount += 1;
 
       this.workers[workerIndex].weight--;
     }
-    clearInterval(intervalDesc);
   }
 }
 module.exports = new LoadBlancerWRR();

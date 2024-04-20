@@ -11,7 +11,6 @@ module.exports = async function execute(balancer) {
   //   console.log();
   // }
   console.log('Set timeout end');
-  if (balancer.workers[0].taskQueue.length > 100) return;
   setTimeout(() => {
     execute(balancer);
   }, 0);
