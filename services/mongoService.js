@@ -26,7 +26,6 @@ module.exports = class MongoService {
     } catch (error) {
       console.log(error);
     }
-    this.getLogsByDate('2024-04-21');
   }
   async closeConnection() {
     await this.client.close();
@@ -44,10 +43,51 @@ module.exports = class MongoService {
       const cursor = collection.find(query, options);
       if ((await collection.countDocuments(query)) === 0) {
         console.log('No documents found!');
-        return;
+        return [];
       }
       const results = await cursor.toArray();
-      console.log(results);
+      return results;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getLogsByTime(time) {
+    try {
+      const database = this.client.db('dest-server');
+      const collection = database.collection('logs');
+
+      const query = { time: time };
+      const options = {
+        // Sort returned documents in ascending order by title (A->Z)
+        sort: { time: 1 },
+      };
+      const cursor = collection.find(query, options);
+      if ((await collection.countDocuments(query)) === 0) {
+        console.log('No documents found!');
+        return [];
+      }
+      const results = await cursor.toArray();
+      return results;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async getLogsByDateAndTime(date, time) {
+    try {
+      const database = this.client.db('dest-server');
+      const collection = database.collection('logs');
+
+      const query = { time, date };
+      const options = {
+        sort: { time: 1 },
+      };
+      const cursor = collection.find(query, options);
+      if ((await collection.countDocuments(query)) === 0) {
+        console.log('No documents found!');
+        return [];
+      }
+      const results = await cursor.toArray();
+      return results;
     } catch (error) {
       console.log(error);
     }

@@ -1,14 +1,48 @@
 const http = require('http');
 const { Server } = require('socket.io');
-const execute = require('./functions/execute');
+
 const port = process.env.PORT || 3000;
-const httpServer = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ message: 'response from server' }));
-});
+const execute = require('./functions/execute');
+
 const workerSystemObject = require('./config');
 const loadBalancer = require('./LoadBalancerWrr');
+
+const Router = require('./Router');
+const loggerRouter = require('./routers/loggerRouter');
+
+const router = new Router();
+
+router.registerRouter('logs', loggerRouter);
+
 const MongoService = require('./services/mongoService');
+
+const bodyParserMiddleware = require('./middlewares/bodyParserMiddleware');
+const loggerMiddleware = require('./middlewares/loggerMiddleware');
+const jsonParserMiddleware = require('./middlewares/jsonParser');
+const urlParserMiddleware = require('./middlewares/urlParserMiddleware');
+
+const middlewares = [
+  bodyParserMiddleware,
+  loggerMiddleware,
+  jsonParserMiddleware,
+  urlParserMiddleware,
+];
+
+const httpServer = http.createServer();
+httpServer.on('request', (req, res) => {
+  let middlewareIndex = 0;
+  function runMiddleware() {
+    if (middlewareIndex < middlewares.length) {
+      middlewares[middlewareIndex](req, res, () => {
+        middlewareIndex++;
+        runMiddleware();
+      });
+    } else {
+      router.executeRouter(req, res);
+    }
+  }
+  runMiddleware();
+});
 
 // loadBalancer.workers.push(
 //   { weight: 5, originalWeight: 5, taskQueue: [] },
