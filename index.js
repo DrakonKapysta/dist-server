@@ -8,13 +8,17 @@ const workerSystemObject = require('./config');
 const loadBalancer = require('./LoadBalancerWrr');
 
 const Router = require('./Router');
-const loggerRouter = require('./routers/loggerRouter');
+const loggingRouter = require('./routers/loggingRouter');
+
+const MongoService = require('./services/mongoService');
+
+const db = new MongoService(
+  'mongodb+srv://dest-server:wT8wFdXnq6WKycDA@dest-server.kwnevwd.mongodb.net/?retryWrites=true&w=majority&appName=dest-server',
+);
 
 const router = new Router();
 
-router.registerRouter('logs', loggerRouter);
-
-const MongoService = require('./services/mongoService');
+router.registerRouter('logs', loggingRouter(db));
 
 const bodyParserMiddleware = require('./middlewares/bodyParserMiddleware');
 const loggerMiddleware = require('./middlewares/loggerMiddleware');
@@ -38,7 +42,7 @@ httpServer.on('request', (req, res) => {
         runMiddleware();
       });
     } else {
-      router.executeRouter(req, res);
+      router.startRouting(req, res);
     }
   }
   runMiddleware();
@@ -49,10 +53,6 @@ httpServer.on('request', (req, res) => {
 //   { weight: 3, originalWeight: 3, taskQueue: [] },
 //   { weight: 1, originalWeight: 1, taskQueue: [] },
 // );
-
-const db = new MongoService(
-  'mongodb+srv://dest-server:wT8wFdXnq6WKycDA@dest-server.kwnevwd.mongodb.net/?retryWrites=true&w=majority&appName=dest-server',
-);
 
 for (let i = 0; i < 5000; i++) {
   loadBalancer.addRequest('Task ' + i);
@@ -77,14 +77,14 @@ const onConnection = (socket) => {
 };
 loadBalancer.startSendingRequestInfo(); // можливо потрібно перейти на http при спілкуванні адміна та сервера...
 
-// setTimeout(() => {
-//   execute(loadBalancer);
-// }, 10000);
+setTimeout(() => {
+  execute(loadBalancer);
+}, 10000);
 
 setInterval(async () => {
   if (store.tempLogs.length !== 0) {
     try {
-      await db.addLogs(store.tempLogs);
+      await db.addItems('dest-server', 'logs', store.tempLogs);
       store.tempLogs = [];
     } catch (error) {
       console.log(error);

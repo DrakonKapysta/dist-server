@@ -1,6 +1,5 @@
 module.exports = async function execute(balancer) {
-  //console.log(balancer);
-  console.log('Set timeout start');
+  //console.log('Set timeout start');
   await balancer.WRR();
   // for (let worker of balancer.workers) {
   //   for (let task of worker.taskQueue) {
@@ -10,8 +9,8 @@ module.exports = async function execute(balancer) {
   //   console.log('===============================================');
   //   console.log();
   // }
-  console.log('Set timeout end');
+  //console.log('Set timeout end');
   setTimeout(() => {
     execute(balancer);
-  }, 0);
+  }, 1000);
 };

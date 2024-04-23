@@ -1,27 +1,29 @@
 const { MongoClient } = require('mongodb');
 module.exports = class MongoService {
   client = undefined;
+  timeToClear = undefined;
   constructor(connectionString) {
     this.client = new MongoClient(connectionString);
   }
-  async getLogs() {
+  async getAllItems(dbName, collectionName) {
     try {
-      const database = this.client.db('dest-server');
-      const collection = database.collection('logs');
-      const logs = await collection.find();
-      console.log(logsCursor);
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
+      const cursor = await collection.find();
+      const result = await cursor.toArray();
+      return result;
     } catch (err) {
       console.log(err);
     }
   }
-  async addLogs(logs) {
+  async addItems(dbName, collectionName, items) {
     try {
-      const database = this.client.db('dest-server');
-      const collection = database.collection('logs');
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
 
       const options = { ordered: true };
 
-      const result = await collection.insertMany(logs, options);
+      const result = await collection.insertMany(items, options);
       console.log(`${result.insertedCount} documents were inserted`);
     } catch (error) {
       console.log(error);
@@ -30,14 +32,13 @@ module.exports = class MongoService {
   async closeConnection() {
     await this.client.close();
   }
-  async getLogsByDate(dateToFind) {
+  async getItemsByDate(dbName, collectionName, dateToFind) {
     try {
-      const database = this.client.db('dest-server');
-      const collection = database.collection('logs');
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
 
       const query = { date: dateToFind };
       const options = {
-        // Sort returned documents in ascending order by title (A->Z)
         sort: { time: 1 },
       };
       const cursor = collection.find(query, options);
@@ -51,10 +52,10 @@ module.exports = class MongoService {
       console.log(error);
     }
   }
-  async getLogsByTime(time) {
+  async getItemsByTime(dbName, collectionName, time) {
     try {
-      const database = this.client.db('dest-server');
-      const collection = database.collection('logs');
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
 
       const query = { time: time };
       const options = {
@@ -72,10 +73,10 @@ module.exports = class MongoService {
       console.log(error);
     }
   }
-  async getLogsByDateAndTime(date, time) {
+  async getItemsByDateAndTime(dbName, collectionName, date, time) {
     try {
-      const database = this.client.db('dest-server');
-      const collection = database.collection('logs');
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
 
       const query = { time, date };
       const options = {
@@ -92,5 +93,19 @@ module.exports = class MongoService {
       console.log(error);
     }
   }
-  async addSingleLog(log) {}
+  async addItem(dbName, collectionName, item) {
+    try {
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async clearItemsByTime(time = undefined) {
+    // під питанням, можливо краще дати змогу видаляти логи адміну, там
+    // в ньго буде можливість видалити діапазон, посортувати, видалити одну...
+    if (time) {
+    } else {
+    }
+  }
 };

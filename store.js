@@ -29,7 +29,6 @@ class Store {
     return { formattedDate, formattedTime };
   }
   addLog(log) {
-    // Форматируем дату и время в нужном формате
     const formatedDateAndTime = this.getFormatedDate();
     formatedDateAndTime;
     this.tempLogs.push({

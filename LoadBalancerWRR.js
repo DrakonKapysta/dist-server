@@ -31,11 +31,11 @@ class LoadBlancerWRR {
       }
     }, 1000);
   }
-  startLoggToAdmin() {}
+  startLoggToAdmin() {} //http
   stopSending() {
     clearInterval(this.sendingRequestInterval);
   }
-  async sendReqToAdmin(index) {
+  async sendTaskToWorker(index, task) {
     this.sockets
       .get(this.workers[index].socketId)
       .emit('request:task', task, (responce) => {
@@ -83,7 +83,7 @@ class LoadBlancerWRR {
       this.workers[workerIndex].taskQueue.push(task);
       // <--------Sending task to worker---------->
 
-      this.sendReqToAdmin(workerIndex);
+      this.sendTaskToWorker(workerIndex, task);
 
       // <--------Sending task to worker---------->
       this.workers[workerIndex].requests.totalRequestCount += 1;
