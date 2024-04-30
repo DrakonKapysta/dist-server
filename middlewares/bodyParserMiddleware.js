@@ -4,7 +4,9 @@ module.exports = function bodyParser(req, res, next) {
     body += chunk;
   });
   req.on('end', () => {
-    req.body = JSON.parse(body);
+    if (body !== '') {
+      req.body = JSON.parse(body);
+    }
     next();
   });
 };

@@ -16,12 +16,14 @@ module.exports = class MongoService {
       console.log(err);
     }
   }
-  async addItems(dbName, collectionName, items) {
+  async addItems(dbName, collectionName, items, options = undefined) {
     try {
       const database = this.client.db(dbName);
       const collection = database.collection(collectionName);
 
-      const options = { ordered: true };
+      if (!options) {
+        options = { ordered: true };
+      }
 
       const result = await collection.insertMany(items, options);
       console.log(`${result.insertedCount} documents were inserted`);
@@ -97,6 +99,42 @@ module.exports = class MongoService {
     try {
       const database = this.client.db(dbName);
       const collection = database.collection(collectionName);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async removeSingleItemByDateAndTime(dbName, collectionName, date, time) {
+    try {
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
+      const query = { time, date };
+      const res = await collection.findOneAndDelete(query);
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async removeManyItemsByDateAndTime(
+    dbName,
+    collectionName,
+    date,
+    time,
+    endDate,
+    endTime,
+  ) {
+    try {
+      const database = this.client.db(dbName);
+      const collection = database.collection(collectionName);
+      const startDateObj = new Date(date);
+      const endDateObj = new Date(endDate);
+      console.log(startDateObj, endDateObj);
+      console.log(startTimeObj, endTimeObj);
+      const query = {
+        date: { $gte: startDateObj, $lte: endDateObj },
+        time: { $gte: startTimeObj, $lte: endTimeObj },
+      };
+      const res = await collection.deleteMany(query);
+      return res;
     } catch (error) {
       console.log(error);
     }

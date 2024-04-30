@@ -9,7 +9,7 @@ const loadBalancer = require('./LoadBalancerWrr');
 
 const Router = require('./Router');
 const loggingRouter = require('./routers/loggingRouter');
-
+const requestRouter = require('./routers/requestRouter');
 const MongoService = require('./services/mongoService');
 
 const db = new MongoService(
@@ -19,6 +19,7 @@ const db = new MongoService(
 const router = new Router();
 
 router.registerRouter('logs', loggingRouter(db));
+router.registerRouter('requests', requestRouter());
 
 const bodyParserMiddleware = require('./middlewares/bodyParserMiddleware');
 const loggerMiddleware = require('./middlewares/loggerMiddleware');
@@ -32,7 +33,11 @@ const middlewares = [
   urlParserMiddleware,
 ];
 
-const httpServer = http.createServer();
+const httpServer = http.createServer((req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+});
 httpServer.on('request', (req, res) => {
   let middlewareIndex = 0;
   function runMiddleware() {
@@ -55,13 +60,13 @@ httpServer.on('request', (req, res) => {
 // );
 
 for (let i = 0; i < 5000; i++) {
-  loadBalancer.addRequest('Task ' + i);
+  loadBalancer.addSingleRequest('Task ' + i);
 }
 
 const io = new Server(httpServer, {
   cors: {
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   },
 });
 const adminNamespace = io.of('/admin');
@@ -77,9 +82,9 @@ const onConnection = (socket) => {
 };
 loadBalancer.startSendingRequestInfo(); // можливо потрібно перейти на http при спілкуванні адміна та сервера...
 
-setTimeout(() => {
-  execute(loadBalancer);
-}, 10000);
+// setTimeout(() => {
+//   execute(loadBalancer);
+// }, 10000);
 
 setInterval(async () => {
   if (store.tempLogs.length !== 0) {

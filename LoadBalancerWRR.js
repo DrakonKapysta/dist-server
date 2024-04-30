@@ -12,8 +12,16 @@ class LoadBlancerWRR {
   addSocket(socket) {
     this.sockets.set(socket.id, socket);
   }
-  addRequest(req) {
-    this.requestList.push(req);
+  addRequests(requests) {
+    console.log(this.requestList.length);
+    this.requestList.push(...requests);
+    console.log(this.requestList.length);
+  }
+  addSingleRequest(request) {
+    // console.log('function:addSingleRequest -->');
+    // console.log('params:request -->\n{\n' + '\t' + request + '\n}');
+    // console.log('propery.requestList:length --> ' + this.requestList.length);
+    this.requestList.push(request);
   }
   addWorker(worker) {
     this.workers.push(worker);
