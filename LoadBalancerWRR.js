@@ -1,3 +1,5 @@
+const consoleLoger = require('./functions/consoleLoger');
+const path = require('path');
 class LoadBlancerWRR {
   workers = [];
   adminNamespace = undefined;
@@ -11,16 +13,12 @@ class LoadBlancerWRR {
   }
   addSocket(socket) {
     this.sockets.set(socket.id, socket);
+    consoleLoger(this.addSocket, path.basename(__filename));
   }
   addRequests(requests) {
-    console.log(this.requestList.length);
     this.requestList.push(...requests);
-    console.log(this.requestList.length);
   }
   addSingleRequest(request) {
-    // console.log('function:addSingleRequest -->');
-    // console.log('params:request -->\n{\n' + '\t' + request + '\n}');
-    // console.log('propery.requestList:length --> ' + this.requestList.length);
     this.requestList.push(request);
   }
   addWorker(worker) {
@@ -37,7 +35,7 @@ class LoadBlancerWRR {
           requests: worker.requests,
         });
       }
-    }, 1000);
+    }, 2000);
   }
   startLoggToAdmin() {} //http
   stopSending() {
@@ -57,14 +55,14 @@ class LoadBlancerWRR {
   }
 
   async WRR() {
-    console.log('Wrr started');
+    //console.log('Wrr started');
     //Handle errors ========================= start
     if (!this.workers.length) {
-      console.error('There are no workers to perform tasks');
+      //console.error('There are no workers to perform tasks');
       return;
     }
     if (!this.requestList.length) {
-      console.error('There are no tasks to perform');
+      //console.error('There are no tasks to perform');
       return;
     }
     //Handle errors ========================= end

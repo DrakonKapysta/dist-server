@@ -1,4 +1,6 @@
 const { MongoClient } = require('mongodb');
+const path = require('path');
+const { parseToDateTimeFormat } = require('../functions/dateFormtter');
 module.exports = class MongoService {
   client = undefined;
   timeToClear = undefined;
@@ -54,47 +56,6 @@ module.exports = class MongoService {
       console.log(error);
     }
   }
-  async getItemsByTime(dbName, collectionName, time) {
-    try {
-      const database = this.client.db(dbName);
-      const collection = database.collection(collectionName);
-
-      const query = { time: time };
-      const options = {
-        // Sort returned documents in ascending order by title (A->Z)
-        sort: { time: 1 },
-      };
-      const cursor = collection.find(query, options);
-      if ((await collection.countDocuments(query)) === 0) {
-        console.log('No documents found!');
-        return [];
-      }
-      const results = await cursor.toArray();
-      return results;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  async getItemsByDateAndTime(dbName, collectionName, date, time) {
-    try {
-      const database = this.client.db(dbName);
-      const collection = database.collection(collectionName);
-
-      const query = { time, date };
-      const options = {
-        sort: { time: 1 },
-      };
-      const cursor = collection.find(query, options);
-      if ((await collection.countDocuments(query)) === 0) {
-        console.log('No documents found!');
-        return [];
-      }
-      const results = await cursor.toArray();
-      return results;
-    } catch (error) {
-      console.log(error);
-    }
-  }
   async addItem(dbName, collectionName, item) {
     try {
       const database = this.client.db(dbName);
@@ -103,36 +64,22 @@ module.exports = class MongoService {
       console.log(error);
     }
   }
-  async removeSingleItemByDateAndTime(dbName, collectionName, date, time) {
+  async removeSingleItemByDate(dbName, collectionName, date) {
     try {
       const database = this.client.db(dbName);
       const collection = database.collection(collectionName);
-      const query = { time, date };
+      const query = { date: new Date(date) };
       const res = await collection.findOneAndDelete(query);
       return res;
     } catch (error) {
       console.log(error);
     }
   }
-  async removeManyItemsByDateAndTime(
-    dbName,
-    collectionName,
-    date,
-    time,
-    endDate,
-    endTime,
-  ) {
+  async removeManyItemsByDate(dbName, collectionName, date, endDate) {
     try {
       const database = this.client.db(dbName);
       const collection = database.collection(collectionName);
-      const startDateObj = new Date(date);
-      const endDateObj = new Date(endDate);
-      console.log(startDateObj, endDateObj);
-      console.log(startTimeObj, endTimeObj);
-      const query = {
-        date: { $gte: startDateObj, $lte: endDateObj },
-        time: { $gte: startTimeObj, $lte: endTimeObj },
-      };
+      const query = { date: { $gte: new Date(date), $lte: new Date(endDate) } };
       const res = await collection.deleteMany(query);
       return res;
     } catch (error) {

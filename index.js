@@ -1,5 +1,6 @@
 const http = require('http');
 const { Server } = require('socket.io');
+const path = require('path');
 
 const port = process.env.PORT || 3000;
 const execute = require('./functions/execute');
@@ -11,6 +12,8 @@ const Router = require('./Router');
 const loggingRouter = require('./routers/loggingRouter');
 const requestRouter = require('./routers/requestRouter');
 const MongoService = require('./services/mongoService');
+
+const consoleLoger = require('./functions/consoleLoger');
 
 const db = new MongoService(
   'mongodb+srv://dest-server:wT8wFdXnq6WKycDA@dest-server.kwnevwd.mongodb.net/?retryWrites=true&w=majority&appName=dest-server',
@@ -74,17 +77,11 @@ loadBalancer.setAdminNamespace(adminNamespace);
 const registerConnectionHandler = require('./handlers/connectionHandler');
 const store = require('./store');
 
-const onConnection = (socket) => {
-  console.log(`Client with socketId: ${socket.id} connected.`);
-  registerConnectionHandler(io, socket, db);
-  loadBalancer.addSocket(socket);
-  socket.emit('connection:info-object', workerSystemObject);
-};
 loadBalancer.startSendingRequestInfo(); // можливо потрібно перейти на http при спілкуванні адміна та сервера...
 
-// setTimeout(() => {
-//   execute(loadBalancer);
-// }, 10000);
+setTimeout(() => {
+  execute(loadBalancer);
+}, 10000);
 
 setInterval(async () => {
   if (store.tempLogs.length !== 0) {
@@ -96,6 +93,17 @@ setInterval(async () => {
     }
   }
 }, 10000);
+
+const onConnection = (socket) => {
+  consoleLoger(
+    onConnection,
+    path.basename(__filename),
+    `Client with socketId: ${socket.id} connected.`,
+  );
+  registerConnectionHandler(io, socket, db);
+  loadBalancer.addSocket(socket);
+  socket.emit('connection:info-object', workerSystemObject);
+};
 
 io.on('connection', onConnection);
 adminNamespace.on('connection', async (socket) => {

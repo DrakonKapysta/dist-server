@@ -1,6 +1,7 @@
 const calculateWeight = require('../functions/calculateWeight');
 const loadBalancer = require('../LoadBalancerWrr');
 const store = require('../store');
+const path = require('path');
 const weights = [5, 3, 2];
 
 module.exports = (io, socket, db) => {
