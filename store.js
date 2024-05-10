@@ -1,6 +1,19 @@
 const { getFormatedDate } = require('./functions/dateFormtter');
 class Store {
   tempLogs = [];
+  tempStat = {
+    _id: 'serverStatistic',
+    totalConnections: 0,
+
+    connectionsInfo: [
+      {
+        date: undefined,
+        connectionCount: 0,
+        connectionList: [],
+      },
+    ],
+  };
+  statChanged = false;
   constructor() {
     this.clients = new Map();
   }
@@ -22,7 +35,6 @@ class Store {
       date: new Date(),
     });
   }
-  getNextComputer() {}
   getClients() {
     const clientsArray = [];
     for (const [socketId, info] of this.clients) {
@@ -34,6 +46,37 @@ class Store {
   removeClient(socketId) {
     if (this.clients.has(socketId)) {
       this.clients.delete(socketId);
+    }
+  }
+
+  addNewConnectionToStat() {
+    this.tempStat.totalConnections += 1;
+    console.log(this.tempStat.totalConnections);
+    const date = new Date();
+    const parsedDate = `${date.getFullYear()} ${
+      date.getMonth() + 1
+    } ${date.getDate()}`;
+    if (this.tempStat.connectionsInfo.length == 0) {
+      const newConnectionObj = {
+        date: parsedDate,
+        connectionCount: 1,
+      };
+      this.tempStat.connectionsInfo.push(newConnectionObj);
+      return;
+    }
+    const connectionByDate = this.tempStat.connectionsInfo.find(
+      (connection) => connection.date == parsedDate,
+    );
+    if (connectionByDate) {
+      connectionByDate.connectionCount += 1;
+      return;
+    } else {
+      const newConnectionObj = {
+        date: parsedDate,
+        connectionCount: 1,
+      };
+      this.tempStat.connectionsInfo.push(newConnectionObj);
+      return;
     }
   }
 }

@@ -11,18 +11,24 @@ const loadBalancer = require('./LoadBalancerWrr');
 const Router = require('./Router');
 const loggingRouter = require('./routers/loggingRouter');
 const requestRouter = require('./routers/requestRouter');
+const systemInfoRouter = require('./routers/systemInfoRouter');
+
 const MongoService = require('./services/mongoService');
+const StatisticService = require('./services/statisticService');
+const LoggerService = require('./services/loggerService');
 
 const consoleLoger = require('./functions/consoleLoger');
 
-const db = new MongoService(
+const mongoService = new MongoService(
   'mongodb+srv://dest-server:wT8wFdXnq6WKycDA@dest-server.kwnevwd.mongodb.net/?retryWrites=true&w=majority&appName=dest-server',
 );
 
-const router = new Router();
-
-router.registerRouter('logs', loggingRouter(db));
-router.registerRouter('requests', requestRouter());
+const loggerService = new LoggerService(mongoService.getMongoClient());
+const statisticService = new StatisticService(
+  mongoService.getMongoClient(),
+  'dest-server',
+  'statistic',
+);
 
 const bodyParserMiddleware = require('./middlewares/bodyParserMiddleware');
 const loggerMiddleware = require('./middlewares/loggerMiddleware');
@@ -72,6 +78,13 @@ const io = new Server(httpServer, {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   },
 });
+
+const router = new Router();
+
+router.registerRouter('logs', loggingRouter(loggerService));
+router.registerRouter('requests', requestRouter());
+router.registerRouter('system', systemInfoRouter(io));
+
 const adminNamespace = io.of('/admin');
 loadBalancer.setAdminNamespace(adminNamespace);
 const registerConnectionHandler = require('./handlers/connectionHandler');
@@ -86,7 +99,7 @@ setTimeout(() => {
 setInterval(async () => {
   if (store.tempLogs.length !== 0) {
     try {
-      await db.addItems('dest-server', 'logs', store.tempLogs);
+      await loggerService.addItems('dest-server', 'logs', store.tempLogs);
       store.tempLogs = [];
     } catch (error) {
       console.log(error);
@@ -100,7 +113,7 @@ const onConnection = (socket) => {
     path.basename(__filename),
     `Client with socketId: ${socket.id} connected.`,
   );
-  registerConnectionHandler(io, socket, db);
+  registerConnectionHandler(io, socket, loggerService);
   loadBalancer.addSocket(socket);
   socket.emit('connection:info-object', workerSystemObject);
 };
@@ -110,7 +123,7 @@ adminNamespace.on('connection', async (socket) => {
   socket.emit('admin:connections', store.getClients());
 });
 process.on('SIGINT', async () => {
-  await db.closeConnection();
+  await mongoService.closeConnection();
   process.exit(0);
 });
 httpServer.listen(port);

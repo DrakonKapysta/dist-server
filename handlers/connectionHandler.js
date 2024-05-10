@@ -12,8 +12,18 @@ module.exports = (io, socket, db) => {
   socket.on('connection:send-info', (payload) => {
     payload.clientIp = socket.handshake.address;
     const cpusObj = payload.currentLoad.cpus;
+    payload.cpu.speed = payload.cpu.speed + ' GHz';
+    const newMemLayout = {};
+    payload.memLayout.forEach((clockObj, index) => {
+      newMemLayout[`clockSpeed${index + 1}`] = clockObj.clockSpeed + ' MHz';
+    });
+    payload.mem.total = (payload.mem.total / 1000000000).toFixed(2) + ' GB';
+    payload.mem.free = (payload.mem.free / 1000000000).toFixed(2) + ' GB';
+    payload.mem.used = (payload.mem.used / 1000000000).toFixed(2) + ' GB';
+    payload.mem = { ...payload.mem, ...newMemLayout };
 
     payload.currentLoad.cpus = cpusObj.map((cpu) => cpu.load);
+    console.log(payload);
     payload.requests = {
       totalRequestCount: 0,
       totalErrorRequests: 0,
@@ -37,6 +47,7 @@ module.exports = (io, socket, db) => {
         socket.id +
         ' connected to the server.',
     );
+    store.addNewConnectionToStat();
     io.of('/admin').emit('admin:newConnection', {
       socketId: socket.id,
       ...payload,
