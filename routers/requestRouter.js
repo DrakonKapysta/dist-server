@@ -1,4 +1,4 @@
-const balancer = require('../LoadBalancerWrr');
+const balancer = require('../LoadBalancerWRR');
 
 module.exports = function (db = undefined) {
   return async (req, res) => {

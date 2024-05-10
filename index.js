@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 const execute = require('./functions/execute');
 
 const workerSystemObject = require('./config');
-const loadBalancer = require('./LoadBalancerWrr');
+const loadBalancer = require('./LoadBalancerWRR');
 
 const Router = require('./Router');
 const loggingRouter = require('./routers/loggingRouter');

@@ -26,6 +26,7 @@ module.exports = function (io) {
       try {
         // Получаем информацию о CPU
         const cpuLoad = await si.currentLoad();
+        console.log(`CPU Load: ${cpuLoad.currentLoad.toFixed(2)}%`);
 
         // Получаем информацию о памяти
         const memUsage = await si.mem();
@@ -38,7 +39,7 @@ module.exports = function (io) {
 
         // Собираем все данные в один объект для использования в приложении
         response.send({
-          cpuLoad: cpuLoad.currentload,
+          cpuLoad: cpuLoad.currentLoad.toFixed(2),
           memoryUsage: (memUsage.active / memUsage.total) * 100,
           diskInfo: disksIO.map((disk) => ({
             filesystem: disk.fs,

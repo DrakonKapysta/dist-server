@@ -1,5 +1,5 @@
 const calculateWeight = require('../functions/calculateWeight');
-const loadBalancer = require('../LoadBalancerWrr');
+const loadBalancer = require('../LoadBalancerWRR');
 const store = require('../store');
 const path = require('path');
 const weights = [5, 3, 2];
