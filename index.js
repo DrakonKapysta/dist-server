@@ -48,9 +48,6 @@ const httpServer = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 });
 httpServer.on('request', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
@@ -81,7 +78,7 @@ httpServer.on('request', (req, res) => {
 //   { weight: 1, originalWeight: 1, taskQueue: [] },
 // );
 
-for (let i = 0; i < 5000; i++) {
+for (let i = 0; i < 100; i++) {
   loadBalancer.addSingleRequest('Task ' + i);
 }
 
