@@ -63,8 +63,8 @@ exports.gatherSystemMetrics = async function () {
     const memory = await si.mem();
     const disks = await si.fsSize();
     let network = await si.networkStats();
-    network = si.networkStats(); // second attempt to get network info cause we need data to compare.
-
+    console.log(network);
+    const timestamp = new Date().toISOString(); // Генерация временной метки
     const data = {
       cpuLoad: cpu.currentLoad,
       memoryUsage: (memory.used / memory.total) * 100, // Процентное использование
@@ -76,6 +76,7 @@ exports.gatherSystemMetrics = async function () {
         interface: net.iface,
         rx: net.rx_sec,
         tx: net.tx_sec,
+        time: timestamp, // Добавляем временную метку
       })),
     };
 
