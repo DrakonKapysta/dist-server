@@ -2,6 +2,7 @@ const si = require('systeminformation');
 const {
   gatherSystemMetrics,
   gatherNetworkTrafficData,
+  gatherDisksData,
 } = require('../functions/systemInfoUtils');
 function getSystemInfoConfig(key, confParams) {
   return { usageConfig: { [key]: confParams } };
@@ -40,6 +41,17 @@ module.exports = function (io) {
     ) {
       try {
         const data = await gatherNetworkTrafficData();
+        response.send(data);
+      } catch (error) {
+        console.error('Failed to gather system information:', error);
+      }
+    }
+    if (
+      request.params.pathname == '/system/server-disk' &&
+      request.method == 'GET'
+    ) {
+      try {
+        const data = await gatherDisksData();
         response.send(data);
       } catch (error) {
         console.error('Failed to gather system information:', error);
