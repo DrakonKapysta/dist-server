@@ -1,4 +1,5 @@
 const si = require('systeminformation');
+
 exports.gatherNetworkTrafficData = async function () {
   try {
     const networkStats = await si.networkStats();
@@ -37,6 +38,9 @@ exports.gatherDisksData = async function () {
         usage: disk.use,
       })),
     };
+    const stats = await si.fsStats();
+    data.diskActivity.readSpeed = stats.rx_sec;
+    data.diskActivity.writeSpeed = stats.wx_sec;
     return data;
   } catch (error) {
     console.error('Failed to gather disk metrics:', error);
