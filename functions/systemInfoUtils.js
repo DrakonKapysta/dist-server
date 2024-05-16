@@ -39,8 +39,8 @@ exports.gatherDisksData = async function () {
       })),
     };
     const stats = await si.fsStats();
-    data.diskActivity.readSpeed = stats.rx_sec;
-    data.diskActivity.writeSpeed = stats.wx_sec;
+    data.readSpeed = stats.rx_sec;
+    data.writeSpeed = stats.wx_sec;
     return data;
   } catch (error) {
     console.error('Failed to gather disk metrics:', error);
@@ -49,10 +49,60 @@ exports.gatherDisksData = async function () {
 };
 exports.gatherMemoryData = async function () {
   try {
-    const memory = await si.mem();
+    const memoryData = await si.mem();
+    const memoryLayout = await si.memLayout();
+
+    console.log(
+      'Общая память:',
+      (memoryData.total / 1024 / 1024 / 1024).toFixed(2),
+      'GB',
+    );
+    console.log(
+      'Свободная память:',
+      (memoryData.free / 1024 / 1024 / 1024).toFixed(2),
+      'GB',
+    );
+    console.log(
+      'Используемая память:',
+      (memoryData.used / 1024 / 1024 / 1024).toFixed(2),
+      'GB',
+    );
+    console.log(
+      'Кэшированная память:',
+      (memoryData.cached / 1024 / 1024 / 1024).toFixed(2),
+      'GB',
+    );
+    console.log(
+      'Буферная память:',
+      (memoryData.buffers / 1024 / 1024 / 1024).toFixed(2),
+      'GB',
+    );
+    console.log(
+      'Активная память:',
+      (memoryData.active / 1024 / 1024 / 1024).toFixed(2),
+      'GB',
+    );
+    console.log(
+      'Неактивная память:',
+      (memoryData.available / 1024 / 1024 / 1024).toFixed(2),
+      'GB',
+    );
+    console.log('Скорость памяти:', memoryLayout[0].clockSpeed, 'MHz');
+    console.log('Форм-фактор памяти:', memoryLayout[0].formFactor);
+    console.log('Используемые слоты:', memoryLayout.length);
 
     const data = {
-      memoryUsage: (memory.used / memory.total) * 100, // Процентное использование
+      memoryUsage: (memoryData.used / memoryData.total) * 100, // Процентное использование
+      total: (memoryData.total / 1024 / 1024 / 1024).toFixed(2),
+      free: (memoryData.free / 1024 / 1024 / 1024).toFixed(2),
+      used: (memoryData.used / 1024 / 1024 / 1024).toFixed(2),
+      cached: (memoryData.cached / 1024 / 1024 / 1024).toFixed(2),
+      buffers: (memoryData.buffers / 1024 / 1024 / 1024).toFixed(2),
+      active: (memoryData.active / 1024 / 1024 / 1024).toFixed(2),
+      available: (memoryData.available / 1024 / 1024 / 1024).toFixed(2),
+      clockSpeed: memoryLayout.map((mem) => mem.clockSpeed),
+      fromFactor: memoryLayout.map((mem) => mem.formFactor),
+      length: memoryLayout.length,
     };
 
     return data;
