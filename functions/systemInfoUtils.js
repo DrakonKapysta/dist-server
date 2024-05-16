@@ -90,6 +90,10 @@ exports.gatherMemoryData = async function () {
     console.log('Скорость памяти:', memoryLayout[0].clockSpeed, 'MHz');
     console.log('Форм-фактор памяти:', memoryLayout[0].formFactor);
     console.log('Используемые слоты:', memoryLayout.length);
+    const clockSpeed =
+      memoryLayout.length > 0 && !isNaN(memoryLayout[0].clockSpeed)
+        ? memoryLayout.map((mem) => mem.clockSpeed)
+        : 'N/A';
 
     const data = {
       memoryUsage: (memoryData.used / memoryData.total) * 100, // Процентное использование
@@ -100,7 +104,7 @@ exports.gatherMemoryData = async function () {
       buffers: (memoryData.buffers / 1024 / 1024 / 1024).toFixed(2),
       active: (memoryData.active / 1024 / 1024 / 1024).toFixed(2),
       available: (memoryData.available / 1024 / 1024 / 1024).toFixed(2),
-      clockSpeed: memoryLayout.map((mem) => mem.clockSpeed),
+      clockSpeed: clockSpeed,
       fromFactor: memoryLayout.map((mem) => mem.formFactor),
       length: memoryLayout.length,
     };
