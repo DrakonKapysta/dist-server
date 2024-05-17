@@ -12,6 +12,7 @@ const Router = require('./Router');
 const loggingRouter = require('./routers/loggingRouter');
 const requestRouter = require('./routers/requestRouter');
 const systemInfoRouter = require('./routers/systemInfoRouter');
+const taskRouter = require('./routers/taskRouter');
 
 const MongoService = require('./services/mongoService');
 const StatisticService = require('./services/statisticService');
@@ -94,6 +95,7 @@ const router = new Router();
 router.registerRouter('logs', loggingRouter(loggerService));
 router.registerRouter('requests', requestRouter());
 router.registerRouter('system', systemInfoRouter(io));
+router.registerRouter('task', taskRouter());
 
 const adminNamespace = io.of('/admin');
 loadBalancer.setAdminNamespace(adminNamespace);

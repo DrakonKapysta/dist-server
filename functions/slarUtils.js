@@ -1,10 +1,14 @@
-exports.getRandomInt = function (max) {
-  return Math.floor(Math.random() * max);
-};
+exports.getRandomInt = getRandomInt;
 
-exports.getRandomFloat = function (max) {
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+exports.getRandomFloat = getRandomFloat;
+
+function getRandomFloat(max) {
   return Math.round(Math.random() * max * 100) / 100;
-};
+}
 
 exports.generateSlar = function (
   amount,
