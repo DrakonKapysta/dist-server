@@ -1,4 +1,4 @@
-const store = require('../store');
+const loadBalancer = require('../LoadBalancerWRR');
 const { generateSlar, getRandomInt } = require('../functions/slarUtils');
 module.exports = function (db = undefined) {
   return async function (request, response) {
@@ -14,12 +14,11 @@ module.exports = function (db = undefined) {
       const systemAmount =
         request.params.searchParams.get('systemAmount') ||
         (isRandom ? getRandomInt(10) : 1);
-      console.log(equationAmount);
-      console.log(systemAmount);
       for (let index = 0; index < systemAmount; index++) {
         systems.push(generateSlar(equationAmount));
       }
-      return response.send(systems);
+      loadBalancer.addRequests(systems);
+      return response.send({ message: 'Succesfully' });
     }
   };
 };
