@@ -2,12 +2,13 @@ const calculateWeight = require('../functions/calculateWeight');
 const loadBalancer = require('../LoadBalancerWRR');
 const store = require('../store');
 const path = require('path');
-const weights = [5, 3, 2];
+const weights = [5, 3, 3];
 
 module.exports = (io, socket, db) => {
   socket.on('disconnect', (reason) => {
     store.removeClient(socket.id);
     io.of('/admin').emit('admin:removeConnection', socket.id);
+    loadBalancer.removeWorker(socket.id);
   });
   socket.on('connection:send-info', (payload) => {
     payload.clientIp = socket.handshake.address;

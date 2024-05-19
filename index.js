@@ -80,7 +80,17 @@ httpServer.on('request', (req, res) => {
 // );
 
 for (let i = 0; i < 100; i++) {
-  loadBalancer.addSingleRequest('Task ' + i);
+  loadBalancer.addSingleRequest({
+    A: [
+      [5, 2, -1],
+      [-4, 7, 3],
+      [2, -2, 4],
+    ],
+    b: [12, 24, 9],
+    method: 'jacobi',
+    tolerance: 0.01,
+    maxIterations: 100,
+  });
 }
 
 const io = new Server(httpServer, {

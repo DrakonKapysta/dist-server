@@ -11,6 +11,12 @@ class LoadBlancerWRR {
   setAdminNamespace(namespace) {
     this.adminNamespace = namespace;
   }
+  removeWorker(socketId) {
+    const workerIndex = this.workers.indexOf(
+      (worker) => worker.socketId == socketId,
+    );
+    this.workers.splice(workerIndex, 1);
+  }
   addSocket(socket) {
     this.sockets.set(socket.id, socket);
     consoleLoger(this.addSocket, path.basename(__filename));
@@ -47,9 +53,11 @@ class LoadBlancerWRR {
       .emit('request:task', task, (responce) => {
         if (responce.status == 'ok') {
           this.workers[index].requests.totalSuccessfulRequests += 1;
+          console.log(responce.payload);
         }
-        if (responce.status == 'err') {
+        if (responce.status == 'error') {
           this.workers[index].requests.totalErrorRequests += 1;
+          console.log(responce.payload.message);
         }
       });
   }
