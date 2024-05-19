@@ -9,6 +9,7 @@ module.exports = (io, socket, db) => {
     store.removeClient(socket.id);
     io.of('/admin').emit('admin:removeConnection', socket.id);
     loadBalancer.removeWorker(socket.id);
+    console.log(socket.id + ' disconnected');
   });
   socket.on('connection:send-info', (payload) => {
     payload.clientIp = socket.handshake.address;
