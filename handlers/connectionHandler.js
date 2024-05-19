@@ -2,7 +2,7 @@ const calculateWeight = require('../functions/calculateWeight');
 const loadBalancer = require('../LoadBalancerWRR');
 const store = require('../store');
 const path = require('path');
-const weights = [5, 3, 3];
+const weights = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]; // замінити на динамічні потім.
 
 module.exports = (io, socket, db) => {
   socket.on('disconnect', (reason) => {
