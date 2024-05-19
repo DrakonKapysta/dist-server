@@ -130,11 +130,7 @@ setInterval(async () => {
 }, 10000);
 
 const onConnection = (socket) => {
-  consoleLoger(
-    onConnection,
-    path.basename(__filename),
-    `Client with socketId: ${socket.id} connected.`,
-  );
+  console.log(`Client with socketId: ${socket.id} connected.`);
   registerConnectionHandler(io, socket, loggerService);
   loadBalancer.addSocket(socket);
   socket.emit('connection:info-object', workerSystemObject);

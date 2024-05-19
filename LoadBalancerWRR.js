@@ -1,4 +1,3 @@
-const consoleLoger = require('./functions/consoleLoger');
 const path = require('path');
 class LoadBlancerWRR {
   workers = [];
@@ -19,7 +18,6 @@ class LoadBlancerWRR {
   }
   addSocket(socket) {
     this.sockets.set(socket.id, socket);
-    consoleLoger(this.addSocket, path.basename(__filename));
   }
   addRequests(requests) {
     this.requestList.push(...requests);
