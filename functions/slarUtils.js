@@ -54,11 +54,12 @@ exports.generateSlar = function (
   const bMatrix = [];
   let getRandomValue = numberType == 'int' ? getRandomInt : getRandomFloat;
   for (let index = 0; index < amount; index++) {
-    axMatrix.push([
-      getRandomValue(10) || (includeZero ? 0 : 1),
-      getRandomValue(10) || (includeZero ? 0 : 1),
-      getRandomValue(10) || (includeZero ? 0 : 1),
-    ]);
+    const coefs = [];
+    for (let coefIndex = 0; coefIndex < amount; coefIndex++) {
+      coefs.push(getRandomValue(10) || (includeZero ? 0 : 1));
+    }
+    axMatrix.push([...coefs]);
+    coefs.length = 0;
     bMatrix.push(getRandomValue(20));
   }
   return {
