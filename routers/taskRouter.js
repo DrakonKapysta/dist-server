@@ -11,17 +11,16 @@ module.exports = function (db = undefined) {
       request.method == 'GET'
     ) {
       const systems = [];
-      const isRandom = request.params.searchParams.get('random') || false;
+      const isRandom = request.params.searchParams.get('random') === 'true';
       const equationAmount =
         request.params.searchParams.get('equationAmount') ||
         (isRandom ? getRandomInt(10) : 3);
       const systemAmount =
         request.params.searchParams.get('systemAmount') ||
         (isRandom ? getRandomInt(10) : 1);
-      const diaglonal = request.params.searchParams.get('diagonal') || false;
-
+      const diagonal = request.params.searchParams.get('diagonal') === 'true';
       for (let index = 0; index < systemAmount; index++) {
-        if (diaglonal) {
+        if (diagonal) {
           systems.push(generateDiagonalSlar(equationAmount));
         } else {
           systems.push(generateSlar(equationAmount));
