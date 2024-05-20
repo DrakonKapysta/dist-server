@@ -1,5 +1,9 @@
 const loadBalancer = require('../LoadBalancerWRR');
-const { generateSlar, getRandomInt } = require('../functions/slarUtils');
+const {
+  generateSlar,
+  getRandomInt,
+  generateDiagonalSlar,
+} = require('../functions/slarUtils');
 module.exports = function (db = undefined) {
   return async function (request, response) {
     if (
@@ -14,11 +18,17 @@ module.exports = function (db = undefined) {
       const systemAmount =
         request.params.searchParams.get('systemAmount') ||
         (isRandom ? getRandomInt(10) : 1);
+      const diaglonal = request.params.searchParams.get('diagonal') || false;
+
       for (let index = 0; index < systemAmount; index++) {
-        systems.push(generateSlar(equationAmount));
+        if (diaglonal) {
+          systems.push(generateDiagonalSlar(equationAmount));
+        } else {
+          systems.push(generateSlar(equationAmount));
+        }
       }
       loadBalancer.addRequests(systems);
-      return response.send({ message: 'Succesfully' });
+      return response.send(systems);
     }
   };
 };
