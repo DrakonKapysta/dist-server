@@ -1,13 +1,15 @@
-module.exports = function calculateWeight(systemInfo) {
-  let weight = Math.round(systemInfo.cores / 4);
-  console.log('Sys:cores ' + systemInfo.cores);
-  if (weight < 1) weight = 1;
-  if (systemInfo.memory >= 2400 && systemInfo.memory < 3600) {
-    weight += 1;
-  }
-  if (systemInfo.memory >= 3600) {
-    weight += 2;
-  }
-  console.log('weight: ' + weight);
-  return weight;
+module.exports = function calculateWeight(
+  coreCount,
+  baseCpuPerformance,
+  ramAvailable,
+) {
+  const alpha = 1.0; // coefs
+  const beta = 2.0;
+  const gamma = 0.5;
+  console.log(
+    `${alpha} * ${baseCpuPerformance} + ${beta} * ${coreCount} + ${gamma} * ${ramAvailable}`,
+  );
+  const rawWeight =
+    alpha * baseCpuPerformance + beta * coreCount + gamma * ramAvailable;
+  return Math.round(rawWeight);
 };

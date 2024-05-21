@@ -2,7 +2,6 @@ const calculateWeight = require('../functions/calculateWeight');
 const loadBalancer = require('../LoadBalancerWRR');
 const store = require('../store');
 const path = require('path');
-const weights = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]; // замінити на динамічні потім.
 
 module.exports = (io, socket, db) => {
   socket.on('disconnect', (reason) => {
@@ -12,6 +11,12 @@ module.exports = (io, socket, db) => {
     console.log(socket.id + ' disconnected');
   });
   socket.on('connection:send-info', (payload) => {
+    const weight = calculateWeight(
+      payload.cpu.physicalCores,
+      payload.cpu.speed,
+      payload.mem.free / 1073741824,
+    );
+    console.log('weight: ', weight);
     payload.clientIp = socket.handshake.address;
     const cpusObj = payload.currentLoad.cpus;
     payload.cpu.speed = payload.cpu.speed + ' GHz';
@@ -25,14 +30,14 @@ module.exports = (io, socket, db) => {
     payload.mem = { ...payload.mem, ...newMemLayout };
 
     payload.currentLoad.cpus = cpusObj.map((cpu) => cpu.load);
-    console.log(payload);
+    //console.log(payload);
     payload.requests = {
       totalRequestCount: 0,
       totalErrorRequests: 0,
       totalSuccessfulRequests: 0,
     };
     payload.socketId = socket.id;
-    const weight = weights.shift();
+    //console.log(payload);
     payload.weight = weight;
     payload.originalWeight = weight;
     payload.taskQueue = [];

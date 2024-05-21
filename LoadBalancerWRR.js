@@ -11,9 +11,13 @@ class LoadBlancerWRR {
     this.adminNamespace = namespace;
   }
   removeWorker(socketId) {
-    const workerIndex = this.workers.indexOf(
-      (worker) => worker.socketId == socketId,
-    );
+    let workerIndex = undefined;
+    this.workers.find((worker, index) => {
+      if (worker.socketId == socketId) {
+        workerIndex = index;
+        return true;
+      }
+    });
     this.workers.splice(workerIndex, 1);
   }
   addSocket(socket) {
@@ -51,11 +55,11 @@ class LoadBlancerWRR {
       .emit('request:task', task, (responce) => {
         if (responce.status == 'ok') {
           this.workers[index].requests.totalSuccessfulRequests += 1;
-          console.log(responce.payload);
+          //console.log(responce.payload);
         }
         if (responce.status == 'error') {
           this.workers[index].requests.totalErrorRequests += 1;
-          console.log(responce.payload.message);
+          //console.log(responce.payload.message);
         }
       });
   }
@@ -76,8 +80,9 @@ class LoadBlancerWRR {
     let workerIndex = 0;
     while (this.requestList.length) {
       while (this.workers[workerIndex].weight <= 0) {
+        console.dir(this.workers);
         workerIndex++;
-        if (workerIndex == this.workers.length) {
+        if (workerIndex >= this.workers.length) {
           for (let index = 0; index < this.workers.length; index++) {
             this.workers[index].weight = this.workers[index].originalWeight;
           }
@@ -92,7 +97,7 @@ class LoadBlancerWRR {
         return;
       }
 
-      this.workers[workerIndex].taskQueue.push(task);
+      //this.workers[workerIndex].taskQueue.push(task);
       // <--------Sending task to worker---------->
 
       this.sendTaskToWorker(workerIndex, task);
