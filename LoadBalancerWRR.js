@@ -55,7 +55,7 @@ class LoadBlancerWRR {
       .emit('request:task', task, (responce) => {
         if (responce.status == 'ok') {
           this.workers[index].requests.totalSuccessfulRequests += 1;
-          //console.log(responce.payload);
+          console.log(responce.payload);
         }
         if (responce.status == 'error') {
           this.workers[index].requests.totalErrorRequests += 1;
