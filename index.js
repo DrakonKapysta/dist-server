@@ -1,7 +1,8 @@
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-
+const dotenv = require('dotenv');
+dotenv.config();
 const port = process.env.PORT || 3000;
 const execute = require('./functions/execute');
 
@@ -72,26 +73,6 @@ httpServer.on('request', (req, res) => {
   }
   runMiddleware();
 });
-
-// loadBalancer.workers.push(
-//   { weight: 5, originalWeight: 5, taskQueue: [] },
-//   { weight: 3, originalWeight: 3, taskQueue: [] },
-//   { weight: 1, originalWeight: 1, taskQueue: [] },
-// );
-
-// for (let i = 0; i < 100; i++) {
-//   loadBalancer.addSingleRequest({
-//     A: [
-//       [5, 2, -1],
-//       [-4, 7, 3],
-//       [2, -2, 4],
-//     ],
-//     b: [12, 24, 9],
-//     method: 'jacobi',
-//     tolerance: 0.01,
-//     maxIterations: 100,
-//   });
-// }
 
 const io = new Server(httpServer, {
   cors: {
