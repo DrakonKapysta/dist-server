@@ -55,7 +55,7 @@ class LoadBlancerWRR {
       .get(this.workers[index].socketId)
       .emit(
         'request:task',
-        encrypt(task, process.env.SECRET_KEY),
+        encrypt(JSON.stringify(task), process.env.SECRET_KEY),
         (responce) => {
           if (responce.status == 'ok') {
             this.workers[index].requests.totalSuccessfulRequests += 1;
