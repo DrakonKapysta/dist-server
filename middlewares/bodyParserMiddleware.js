@@ -7,7 +7,8 @@ module.exports = function bodyParser(req, res, next) {
   });
   req.on('end', () => {
     if (body !== '') {
-      req.body = JSON.parse(decrypt(body, process.env.SECRET_KEY));
+      //req.body = JSON.parse(decrypt(body, process.env.SECRET_KEY));
+      req.body = JSON.parse(body);
     }
     next();
   });
